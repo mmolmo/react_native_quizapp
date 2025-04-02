@@ -1,72 +1,62 @@
 import {useState, React} from 'react';
 
 import { SafeAreaView, Text, FlatList } from 'react-native';
-
-import styles from '../../../styles'; // Assuming styles are in a separate file
-
 import { useNavigation, useRoute } from '@react-navigation/native';
-
 import { Button, Icon } from '@rneui/themed';
 
+import styles from '../../../styles';
+
 export default function QuizQuestion() {
-//   const renderItem = ({ item }) => (
-//     <ExerciseNavCard
-//       key={item.key} // Ensure unique key
-//       exercise={item}
-//       allExercises={exerciseData}
-//     />
-//   );
 
-const navigation = useNavigation();
+  const navigation = useNavigation();
 
-const route = useRoute();
-const { currentQuestion, quizData, key } = route.params;
+  const route = useRoute();
+  const { currentQuestion, quizData, key } = route.params;
 
-// console.log(currentQuestion);
-// console.log(quizData);
-// console.log(key);
+  // console.log(currentQuestion);
+  // console.log(quizData);
+  // console.log(key);
 
+  const [selectedAnswers, setSelectedAnswers] = useState([]);
+  const [correctAnswers, setCorrectAnswers] = useState([]);
 
-const [selectedAnswers, setSelectedAnswers] = useState([]);
-const [correctAnswers, setCorrectAnswers] = useState([]);
-
-const handleSelectQuestion = (item) => {
-    console.log("Selected:", item);
-    console.log("Selected Answers:", selectedAnswers);
+  const handleSelectQuestion = (item) => {
+    // console.log("Selected:", item);
+    // console.log("Selected Answers:", selectedAnswers);
 
     setSelectedAnswers((prev) => {
-        if (prev.includes(item)) {
-            // Deselect if already selected
-            return prev.filter(ans => ans !== item);
-        } else {
-            // Select new item
-            return [...prev, item];
-        }
+      if (prev.includes(item)) {
+        // Deselect if already selected
+        return prev.filter(ans => ans !== item);
+      } else {
+        // Select new item
+        return [...prev, item];
+      }
     });
-};
+  };
 
-const checkAnswers = () => {
-    // Normalize correct answers into an array
+  const checkAnswers = () => {
+    // send correct answers into an array
     const correctAnswersArray = Array.isArray(currentQuestion.correct)
-        ? currentQuestion.correct
-        : [currentQuestion.correct];
+      ? currentQuestion.correct
+      : [currentQuestion.correct];
     
-    // Convert selected answer strings to their indices
+    // convert selected answer to indexes
     const selectedIndices = selectedAnswers.map(answer => 
-        currentQuestion.choices.indexOf(answer)
+      currentQuestion.choices.indexOf(answer)
     );
 
-    console.log("Selected Indices:", selectedIndices);
-    // Check if lengths match and all correct indices are selected
+    // console.log("Selected Indices:", selectedIndices);
+    // check if lengths match and all correct indices selected
     const isCorrect = 
-        correctAnswersArray.length === selectedIndices.length &&
-        correctAnswersArray.every(index => selectedIndices.includes(index));
-    console.log("Is correct:", isCorrect);
+      correctAnswersArray.length === selectedIndices.length &&
+      correctAnswersArray.every(index => selectedIndices.includes(index));
+      // console.log("Is correct:", isCorrect);
     return isCorrect;
-};
+  };
 
 
-const handleNavigateNextQuestion = () => {
+  const handleNavigateNextQuestion = () => {
     const isCurrentCorrect = checkAnswers();
     const updatedResults = [
       ...correctAnswers, 
@@ -93,37 +83,37 @@ const handleNavigateNextQuestion = () => {
     }
   };
 
-const renderItem = ({ item }) => {
+  const renderItem = ({ item }) => {
     const isSelected = selectedAnswers.includes(item);
 
     return (
-        <Button
-            key={item.key} // Ensure unique key
-            title={item}
-            onPress={() => handleSelectQuestion(item)}
-            buttonStyle={{
-                backgroundColor: isSelected ? "blue" : "gray", // Change color based on selection
-                padding: 10,
-            }}
-        />
+      <Button
+        key={item.key} 
+        title={item}
+        onPress={() => handleSelectQuestion(item)}
+        type = {isSelected ? 'outline' : 'solid'}
+        titleStyle={isSelected ? styles.selectedQuestionButtonTitle : styles.QuestionButtonTitle}
+        buttonStyle={isSelected ? styles.selectedQuestionButton : styles.QuestionButton}
+      />
     );
-};
+  };
 
+  const buttonColor = styles.button.color || 'defaultColor';
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={{ color: '#black', fontSize: 32, fontWeight: 'bold' }}>
+      <Text style={styles.title}>
         Quiz {key}
       </Text>
-      <Text style={{ color: '#black', fontSize: 16, marginTop: 8 }}>
+      <Text style={styles.questionTitle}>
         {currentQuestion.prompt}
       </Text>
       <FlatList 
         data={currentQuestion.choices}
         renderItem={renderItem}
       />
-      <Button onPress={handleNavigateNextQuestion} quizData={quizData} style={{ marginTop: 20 }}>
+      <Button onPress={handleNavigateNextQuestion} quizData={quizData} buttonStyle={styles.button}>
         Next Question!
-        <Icon name='arrow-right' type='font-awesome' color='#000000' />
+        <Icon name='arrow-forward-outline' type='ionicon' color={buttonColor} />
       </Button>
     </SafeAreaView>
   );

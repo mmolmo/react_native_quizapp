@@ -1,12 +1,10 @@
 import React from 'react';
 
 import { SafeAreaView, Text } from 'react-native';
-
-import styles from '../../../styles'; // Assuming styles are in a separate file
-
 import { useNavigation } from '@react-navigation/native';
-
 import { Button, Icon } from '@rneui/themed';
+
+import styles from '../../../styles';
 
 const quizData = [
     {
@@ -46,34 +44,28 @@ const quizData = [
   ]
 
 export default function QuizStart() {
-//   const renderItem = ({ item }) => (
-//     <ExerciseNavCard
-//       key={item.key} // Ensure unique key
-//       exercise={item}
-//       allExercises={exerciseData}
-//     />
-//   );
 
-const navigation = useNavigation();
+  const navigation = useNavigation();
 
-const startingQuestion = quizData[0];
+  const startingQuestion = quizData[0];
 
-handleNavigateQuizQuestion = () => {
+  const handleNavigateQuizQuestion = () => {
     console.log(startingQuestion);
     navigation.navigate('QuizQuestion', { currentQuestion: startingQuestion, quizData: quizData, key: startingQuestion.id });
-}
+  }
+  const buttonColor = styles.button.color || 'defaultColor';
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={{ color: '#black', fontSize: 32, fontWeight: 'bold' }}>
-        Quizzzzz
+      <Text style={styles.title}>
+        Home
       </Text>
-      <Text style={{ color: '#B0B0B0', fontSize: 16, marginTop: 8 }}>
+      <Text style={styles.questionTitle}>
         Let's get started!
       </Text>
-      <Button onPress={handleNavigateQuizQuestion} quizData={quizData} style={{ marginTop: 20 }}>
+      <Button onPress={handleNavigateQuizQuestion} quizData={quizData} buttonStyle={styles.button}>
         Start the quiz! 
-        <Icon name='arrow-right' type='font-awesome' color='#000000' />
+        <Icon name='arrow-forward-outline' type='ionicon' color={buttonColor} />
       </Button>
     </SafeAreaView>
   );
