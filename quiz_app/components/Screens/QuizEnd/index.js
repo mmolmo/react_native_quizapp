@@ -12,7 +12,7 @@ export default function QuizEnd() {
   const route = useRoute();
   const { results, quizData } = route.params;
 
-  // console.log("results", results);
+  console.log("results", results);
   // console.log("data", quizData);
 
   const handleNavigateQuizStart = () => {
@@ -31,25 +31,53 @@ export default function QuizEnd() {
       return choiceIndex === question.correct;
     }
   };
+
+  const isChoiceSelected = (questionId, choiceIndex) => {
+    const result = results.find(r => r.questionId === questionId);
+    if (!result) return false;
+    
+    if (Array.isArray(result.selected)) {
+      return result.selected.includes(choiceIndex);
+    } else {
+      return result.selected === choiceIndex;
+    }
+  };
   
-  const renderQuestionItem = ({ item }) => (
-    <View style={{ marginVertical: 10 }}>
-      <Text style={styles.quizSummarySubtitle}>
-        {item.prompt}
-      </Text>
-      {item.choices.map((choice, index) => {
-        const correct = isChoiceCorrect(item, index);
-        return (
-          <Text
-            key={index}
-            style={correct ? styles.summaryCorrectQuestionText : styles.summaryQuestionText}
-          >
-            {choice}
-          </Text>
-        );
-      })}
-    </View>
-  );
+  const renderQuestionItem = ({ item }) => {
+    const result = results.find(r => r.questionId === item.id);
+    
+    return (
+      <View style={{ marginVertical: 10 }}>
+        <Text style={styles.quizSummarySubtitle}>
+          {item.prompt}
+        </Text>
+        {item.choices.map((choice, index) => {
+          const correct = isChoiceCorrect(item, index);
+          const selected = isChoiceSelected(item.id, index);
+          
+          let textStyle;
+          
+          if (correct) {
+            textStyle = styles.summaryCorrectQuestionText;
+          } else if (selected && !correct) {
+            textStyle = styles.summaryIncorrectQuestionText; // Your new style for incorrect selections
+          } else {
+            textStyle = styles.summaryQuestionText;
+          }
+          
+          return (
+            <Text
+              key={index}
+              style={textStyle}
+            >
+              {choice} {selected ? '(Selected)' : ''} 
+            </Text>
+          );
+        })}
+      </View>
+    );
+  };
+  
   const buttonColor = styles.button.color || 'defaultColor';
 
   return (
@@ -57,7 +85,7 @@ export default function QuizEnd() {
       <Text style={styles.title}>
         Summary
       </Text>
-      <Text style={styles.title}>
+      <Text style={styles.title} testID="total">
         Score: {correctAnswers}/{totalQuestions}
       </Text>
       <Text style={styles.questionTitle}>
